@@ -1,3 +1,11 @@
+## Diff between this fork and official hugo
+
+Add support for math formula wrapped in `$..$` (inline) and `$$...$$`(multiline), which means you don't have to type `\\\\` in math for a real `\\` or add extra shortcode.
+
+This feature is credited to [goldmark-qjs-katex](https://github.com/graemephi/goldmark-qjs-katex), and this fork just adds goldmark-qjs-katex to the dedpendencies and pulls changes from [official hugo repo](https://github.com/gohugoio/hugo).
+
+---
+
 <a href="https://gohugo.io/"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/hugo-logo-wide.svg?sanitize=true" alt="Hugo" width="565"></a>
 
 A Fast and Flexible Static Site Generator built with love by [bep](https://github.com/bep), [spf13](https://spf13.com/) and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go](https://go.dev/).
@@ -13,15 +21,20 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 [![Tests on Linux, MacOS and Windows](https://github.com/gohugoio/hugo/workflows/Test/badge.svg)](https://github.com/gohugoio/hugo/actions?query=workflow%3ATest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohugoio/hugo)](https://goreportcard.com/report/github.com/gohugoio/hugo)
 
-* [Overview](#overview)
-* [Banner Sponsors](#banner-sponsors)
-* [Supported Architectures](#supported-architectures)
-* [Choose How to Install](#choose-how-to-install)
-   * [Install Hugo as Your Site Generator (Binary Install)](#install-hugo-as-your-site-generator-binary-install)
-   * [Build and Install the Binary from Source (Using the Go toolchain)](#build-and-install-the-binary-from-source-using-the-go-toolchain)
-* [The Hugo Documentation](#the-hugo-documentation)
-* [Contributing to Hugo](#contributing-code-to-hugo)
-* [Dependencies](#dependencies)
+- [Diff between this fork and official hugo](#diff-between-this-fork-and-official-hugo)
+- [Overview](#overview)
+- [Banner Sponsors](#banner-sponsors)
+- [Supported Architectures](#supported-architectures)
+- [Choose How to Install](#choose-how-to-install)
+  - [Install Hugo as Your Site Generator (Binary Install)](#install-hugo-as-your-site-generator-binary-install)
+  - [Build and Install the Binary from Source (Using the Go toolchain)](#build-and-install-the-binary-from-source-using-the-go-toolchain)
+    - [Prerequisite Tools](#prerequisite-tools)
+    - [Fetch from GitHub](#fetch-from-github)
+- [The Hugo Documentation](#the-hugo-documentation)
+- [Contributing code to Hugo](#contributing-code-to-hugo)
+- [Asking Support Questions](#asking-support-questions)
+- [Reporting Issues](#reporting-issues)
+- [Dependencies](#dependencies)
 
 ## Overview
 

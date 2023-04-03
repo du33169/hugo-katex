@@ -34,6 +34,8 @@ import (
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
+
+	qjskatex "github.com/graemephi/goldmark-qjs-katex"
 )
 
 const (
@@ -135,7 +137,9 @@ func newMarkdown(pcfg converter.ProviderConfig) goldmark.Markdown {
 	if cfg.Extensions.Footnote {
 		extensions = append(extensions, extension.Footnote)
 	}
-
+	if cfg.Extensions.KaTeX {
+		extensions = append(extensions, &qjskatex.Extension{})
+	}
 	if cfg.Parser.AutoHeadingID {
 		parserOptions = append(parserOptions, parser.WithAutoHeadingID())
 	}

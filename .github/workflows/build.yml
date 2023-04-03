@@ -1,0 +1,108 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build & Release
+
+permissions:
+  contents: write # need for create release
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    branches: [ stable ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.20.x
+
+    - name: Cache go dependencies
+      id: cacher
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/go/
+          ~/.cache/go-build
+        key: ${{ runner.os }}-hugo-katex-go-depend
+
+    - name: Install dependencies
+      if: steps.cacher.outputs.cache-hit != 'true'
+      run: |
+        go install
+        go install github.com/magefile/mage@latest
+    # - name: ~/go/bin/mage check
+    #   run: ~/go/bin/mage -v check
+    #   env:
+    #     HUGO_BUILD_TAGS: extended
+
+    - name: Build project
+      run: ~/go/bin/mage hugo
+      env:
+        HUGO_BUILD_TAGS: extended
+    
+    # extract version
+    - name: Extract version and hash on Ubuntu/macos
+      if: matrix.os == 'ubuntu-latest'|| matrix.os == 'macos-latest'
+      run: |
+        version_hash=$(~/go/bin/hugo env ~/go/bin/hugo env| grep -oE '^hugo v[0-9.]+-[0-9a-f]+' | sed -E 's/^hugo (v[0-9.]+)-([0-9a-f]{6}).*/\1_\2_extended_amd64/')
+        echo "version_hash=$version_hash" >> $GITHUB_ENV
+    - name: Extract version and hash on Windows
+      if: matrix.os == 'windows-latest'
+      shell: powershell
+      run: |
+        $version_hash = hugo env | Select-String -Pattern '^hugo v[0-9.]+-[0-9a-f]+' | % { $_.Matches } | % { $_.Value } | % { $_ -replace '^hugo (v[0-9.]+)-([0-9a-f]{6}).*', '$1_$2_extended_amd64' }
+        echo "version_hash=$version_hash" | Out-File -FilePath $env:GITHUB_ENV -Append
+    #packup
+    - name: Create release asset for Ubuntu/macos
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+      run: |
+        tar -cvf - hugo | gzip -9 > "hugo_katex_${{ runner.os }}_${{ env.version_hash }}.tar.gz"
+
+    - name: Create release asset for Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        Compress-Archive -Path hugo.exe -DestinationPath "hugo_katex_${{ runner.os }}_${{ env.version_hash }}.zip" -CompressionLevel Optimal
+      shell: powershell
+
+    # upload artifact
+    - name: Create and upload artifact for Ubuntu/macos
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: "hugo_katex_${{ runner.os }}_${{ env.version_hash }}.tar.gz"
+        path: "hugo_katex_${{ runner.os }}_${{ env.version_hash }}.tar.gz"
+
+    - name: Create and upload artifact  for Windows
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: "hugo_katex_${{ runner.os }}_${{ env.version_hash }}.zip"
+        path: "hugo_katex_${{ runner.os }}_${{ env.version_hash }}.zip"
+
+        
+    # upload release, tag only
+    - name: Create and upload release for Ubuntu/macos
+      if: (matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )&& startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "hugo_katex_${{ runner.os }}_${{ env.version_hash }}.tar.gz"
+
+    - name: Create and upload release for Windows
+      if: matrix.os == 'windows-latest' && startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "hugo_katex_${{ runner.os }}_${{ env.version_hash }}.zip"
