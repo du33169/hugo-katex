@@ -1,3 +1,7 @@
+⚠️This fork is deprecated due to the inconvenience of manual rebase. Please check out [hugo-math-patch](https://github.com/du33169/hugo-math-patch) with github action that automatically syncs with upstream hugo release and provides out-of-box executables with math support.
+
+---
+
 ## Diff between this fork and official hugo
 
 Add support for math formula wrapped in `$..$` (inline) and `$$...$$`(multiline), which means you don't have to type `\\\\` in math for a real `\\` or add extra shortcode.
